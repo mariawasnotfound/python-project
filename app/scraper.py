@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup 
 from db import save_event 
  
-URL = 'https://afisha.timepad.ru/chelyabinsk/' 
+URL = 'https://afisha.ru/chelyabinsk/' 
  
 def get_event_data(): 
     response = requests.get(URL) 
