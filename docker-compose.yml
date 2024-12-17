@@ -19,7 +19,7 @@ services:
     container_name: nearby_events_bot
     environment:
       BOT_TOKEN: "7947881343:AAFwarC1O2Mr8nBsGSp50r1VbYyNDJWc9BU"
-      DATABASE_URL: postgresql://mariwasnotfound:0000@db:5432/afisha_db
+      DATABASE_URL: postgresql://mariawasnotfound:0000@db:5432/afisha_db
     volumes:
       - .:/app
     depends_on:

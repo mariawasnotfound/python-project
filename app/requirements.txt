@@ -1,5 +1,3 @@
-plaintext
-Copy code
 fastapi
 uvicorn
 sqlalchemy
@@ -9,3 +7,4 @@ requests
 aiogram
 alembic
 python-dotenv
+
