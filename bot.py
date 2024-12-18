@@ -1,14 +1,16 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import Message, Location
-from database import SessionLocal, Event
+from aiogram.types import Message, Location, ReplyKeyboardMarkup, KeyboardButton
+from database import SessionLocal
+from models import Event
 import asyncio
 import os
 from geopy.distance import geodesic
-from aiogram.filters import Command
+from aiogram.dispatcher.filters import Command
+from aiogram import F
 from aiogram.fsm.storage.memory import MemoryStorage
 
-TOKEN = "8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU"
-bot = Bot(token=TOKEN)
+TOKEN = os.getenv("8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
+bot = Bot(token="8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
 dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(Command("start"))
@@ -20,8 +22,8 @@ async def welcome(message: Message):
         )
     )
 
-@dp.message(Command("location"))
-async def send_nearby_events(message: Message):
+@dp.message(F.content_type == "location")
+async def handle_location(message: Message):
     user_lat = message.location.latitude
     user_lon = message.location.longitude
     session = SessionLocal()
