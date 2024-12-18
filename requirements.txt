@@ -1,3 +1,4 @@
+geopi
 fastapi
 uvicorn
 sqlalchemy
@@ -7,4 +8,4 @@ requests
 aiogram
 alembic
 python-dotenv
-
+asyncio

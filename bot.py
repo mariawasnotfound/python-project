@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message, Location
 from database import SessionLocal, Event
-from aiogram.utils import executor
+import asyncio
 import os
 from geopy.distance import geodesic
 
@@ -53,5 +53,9 @@ async def send_upcoming_events(message: Message):
 
     await message.answer(response)
 
+async def main():
+    await dp.start_polling(skip_updates=True)
+
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
+

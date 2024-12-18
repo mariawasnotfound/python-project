@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:15
+    image: postgres:13
     container_name: afisha_db
     environment:
       POSTGRES_USER: mariawasnotfound
