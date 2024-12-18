@@ -4,12 +4,14 @@ from database import SessionLocal, Event
 import asyncio
 import os
 from geopy.distance import geodesic
+from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
 
-TOKEN = os.getenv("8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
+TOKEN = "8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU"
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(storage=MemoryStorage())
 
-@dp.message_handler(commands=["start"])
+@dp.message(Command("start"))
 async def welcome(message: Message):
     await message.answer(
         "Добро пожаловать! Поделитесь геолокацией, чтобы мы могли найти ближайшие не только по времени, но и месту мероприятия.", 
@@ -18,11 +20,10 @@ async def welcome(message: Message):
         )
     )
 
-@dp.message_handler(content_types=["location"])
+@dp.message(Command("location"))
 async def send_nearby_events(message: Message):
     user_lat = message.location.latitude
     user_lon = message.location.longitude
-
     session = SessionLocal()
     events = session.query(Event).all()
 
@@ -36,13 +37,11 @@ async def send_nearby_events(message: Message):
             if distance <= 10:
                 response += f"📍 {event.title} ({event.location}) - {event.time}\n"
                 count += 1
-
     if count == 0:
         response += "😔 Мероприятий поблизости не найдено."
-
     await message.answer(response)
 
-@dp.message_handler(commands=["events"])
+@dp.message(Command("events"))
 async def send_upcoming_events(message: Message):
     """ Показываем ближайшие мероприятия по времени (если геолокация недоступна). """
     session = SessionLocal()
@@ -54,7 +53,7 @@ async def send_upcoming_events(message: Message):
     await message.answer(response)
 
 async def main():
-    await dp.start_polling(skip_updates=True)
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
