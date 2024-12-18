@@ -3,13 +3,14 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-class Event(Base):
-    __tablename__ = "events"
-
+class Event(Base): 
+    __tablename__ = "events" 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
-    location = Column(String)
+    location = Column(String, nullable=False)
     latitude = Column(Float)
     longitude = Column(Float)
-    time = Column(DateTime)
-    seats_available = Column(Boolean, default=True)
+    start_time = Column(DateTime, nullable=False) 
+    availability_status = Column(String) 
+    link = Column(String) 
+

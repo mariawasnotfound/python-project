@@ -1,6 +1,6 @@
 import requests 
 from bs4 import BeautifulSoup 
-from db import save_event 
+from database import save_event 
  
 URL = 'https://afisha.ru/chelyabinsk/' 
  
@@ -27,6 +27,6 @@ def save_events_to_db(events):
     for event in events: 
         save_event(event['name'], event['date'], event['location'], event['free_spaces'], event['contact_info']) 
  
-if name == "__main__": 
+if __name__ == "__main__": 
     event_data = get_event_data() 
     save_events_to_db(event_data)
