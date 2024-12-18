@@ -1,35 +1,47 @@
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import Message, Location, ReplyKeyboardMarkup, KeyboardButton
+import os
+import asyncio
+import logging
+
+from aiogram import Bot, Dispatcher, types, F
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, ContentType
+from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
+from geopy.distance import geodesic
 from database import SessionLocal
 from models import Event
-import asyncio
-import os
-from geopy.distance import geodesic
-from aiogram.filters import Command
-from aiogram import F
-from aiogram.fsm.storage.memory import MemoryStorage
 
-TOKEN = os.getenv("8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
-bot = Bot(token="8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
+# Устанавливаем уровень логирования для отладки
+logging.basicConfig(level=logging.INFO)
+
+# Получаем токен из переменной окружения
+TOKEN = os.getenv("TOKEN", "8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
+if not TOKEN:
+    raise ValueError("Не удалось получить токен. Убедитесь, что переменная окружения TOKEN установлена.")
+
+# Инициализация бота и диспетчера
+bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(Command("start"))
 async def welcome(message: Message):
+    """Приветственное сообщение с запросом на отправку геолокации"""
     await message.answer(
-        "Добро пожаловать! Поделитесь геолокацией, чтобы мы могли найти ближайшие не только по времени, но и месту мероприятия.", 
-        reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(
-            types.KeyboardButton("📍 Отправить геолокацию", request_location=True)
+        "Добро пожаловать! Поделитесь геолокацией, чтобы мы могли найти ближайшие мероприятия не только по времени, но и по месту.",
+        reply_markup=types.ReplyKeyboardMarkup(
+            keyboard=[[types.KeyboardButton(text="📍 Отправить геолокацию", request_location=True)]],
+            resize_keyboard=True
         )
     )
 
-@dp.message(F.content_type == "location") 
+@dp.message(F.content_type == ContentType.LOCATION)
 async def handle_location(message: Message): 
+    """Обработка геолокации пользователя и поиск ближайших мероприятий"""
     user_lat = message.location.latitude 
     user_lon = message.location.longitude 
     session = SessionLocal() 
     try: 
         events = session.query(Event).all() 
-        response = "🎉 Ближайшие мероприятия:\n\n" 
+        response = "🎉 Ближайшие мероприятия в радиусе 10 км:\n\n" 
         count = 0 
         for event in events: 
             if event.latitude and event.longitude: 
@@ -42,25 +54,43 @@ async def handle_location(message: Message):
         if count == 0: 
             response += "😔 Мероприятий поблизости не найдено." 
         await message.answer(response) 
+    except Exception as e:
+        logging.error(f"Ошибка при обработке геолокации: {e}")
+        await message.answer("Произошла ошибка при поиске мероприятий. Попробуйте ещё раз позже.")
     finally: 
         session.close() 
- 
-@dp.message(Command("events")) 
+
+@dp.message(Command("events"))
 async def send_upcoming_events(message: Message): 
-    """ Показываем ближайшие мероприятия по времени (если геолокация недоступна). """ 
+    """Показываем ближайшие мероприятия по времени (если геолокация недоступна)""" 
     session = SessionLocal() 
     try: 
         events = session.query(Event).order_by(Event.time).limit(5).all() 
-        response = "🎉 Ближайшие мероприятия:\n\n" 
-        for event in events: 
-            response += f"📍 {event.title} ({event.location}) - {event.time}\n" 
- 
+        response = "🎉 Ближайшие мероприятия по времени:\n\n" 
+        if not events:
+            response += "😔 Пока мероприятий не найдено."
+        else:
+            for event in events: 
+                response += f"📍 {event.title} ({event.location}) - {event.time}\n" 
         await message.answer(response) 
+    except Exception as e:
+        logging.error(f"Ошибка при получении списка мероприятий: {e}")
+        await message.answer("Произошла ошибка при получении списка мероприятий. Попробуйте ещё раз позже.")
     finally: 
         session.close()
 
 async def main():
-    await dp.start_polling(bot)
+    """Основная точка входа для запуска бота"""
+    try:
+        logging.info("Запуск бота...")
+        await dp.start_polling(bot)
+    except Exception as e:
+        logging.error(f"Произошла критическая ошибка: {e}")
+    finally:
+        logging.info("Бот был остановлен.")
 
-if __name__ == "main":
+if __name__ == "__main__": 
     asyncio.run(main())
+
+
+
