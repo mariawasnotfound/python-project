@@ -30,8 +30,5 @@ def save_event(name, date, time, location, latitude, longitude):
     finally:
         db.close()
 
-def init_db():
-   Base.metadata.create_all(bind=engine)
-
-if __name__ == "__main__":
-    init_db()
+def session():
+   return SessionLocal()

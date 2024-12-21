@@ -21,7 +21,6 @@ dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(Command("start"))
 async def welcome(message: Message):
-    fetch_events('https://chel.guide/events')
     """Приветственное сообщение с запросом на отправку геолокации"""
     await message.answer(
         "Добро пожаловать! Поделитесь геолокацией, чтобы мы могли найти ближайшие мероприятия не только по времени, но и по месту.",

@@ -1,5 +1,7 @@
+import logging
 import requests
 from bs4 import BeautifulSoup
+from models import Event
 
 def get_coordinates(location):
     location += ", Челябинск"
@@ -8,14 +10,15 @@ def get_coordinates(location):
     response_ = requests.get(url)
     data = response_.json()
     results = data['results']
-
     if results:
         latitude = results[0]['geometry']['lat']
         longitude = results[0]['geometry']['lng']
         return latitude, longitude
     return None, None
 
+# парсинг событий с сайта
 def fetch_events():
+    url = 'https://example.com/events'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -41,16 +44,24 @@ def fetch_events():
             'lat': latitude,
             'lng': longitude
         })
-
     return events
 
+# saving the event in db
+def save_event(name, date, time, location, lat, lng):
+    session = session()
+    db_event = Event(name=name, date=date, time=time, location=location, lat=lat, lng=lng)
+    session.add(db_event)
+    session.commit()
+    session.close()
+
+# saving a list of events
 def save_events_to_db(events):
     for event in events:
         save_event(event['name'], event['date'], event['time'], event['location'], event['lat'], event['lng'])
 
-def save_event(name, date, time, location, lat, lng):
-
 if __name__ == "__main__":
+    # getting and saving
     events = fetch_events()
     save_events_to_db(events)
+    print("События успешно сохранены в базу данных.")
 
