@@ -1,7 +1,6 @@
 import os
 import asyncio
 import logging
-
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message, KeyboardButton, ContentType
 from aiogram.filters import Command
@@ -10,15 +9,12 @@ from geopy.distance import geodesic
 from database import SessionLocal
 from models import Event
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO)
 
-# Получаем токен из переменной окружения
 TOKEN = os.getenv("TOKEN", "8182443228:AAGznPxs3-VV3LpeAcwKSHXKc8HvvPOqcqU")
 if not TOKEN:
     raise ValueError("Не удалось получить токен. Убедитесь, что переменная окружения TOKEN установлена.")
 
-# Инициализация бота и диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -73,14 +69,12 @@ async def send_upcoming_events(message: Message):
     try:
         events = session.query(Event).order_by(Event.time).limit(5).all()
         response = "🎉 Ближайшие мероприятия по времени:\n\n"
-        
         if not events:
             response += "😔 Пока мероприятий не найдено."
         else:
             for event in events:
                 event_time = event.time if event.time else "Время уточняется"
                 response += f"📍 {event.title} ({event.location}) - {event_time}\n"
-        
         await message.answer(response)
     except Exception as e:
         logging.error(f"Ошибка при получении списка мероприятий: {e}")
