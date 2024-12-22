@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from models import Event
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://mariawasnotfound:0000@localhost:5432/afisha_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://mariawasnotfound:0000@db:5432/afisha_db")
 
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
