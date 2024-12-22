@@ -8,7 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from geopy.distance import geodesic
 from database import SessionLocal
 from models import Event
-from scraper import fetch_events
+from scraper import fetch_events, save_events_to_db
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,9 +38,11 @@ async def handle_location(message: Message):
     logging.info("Получена геолокация от пользователя.")
     logging.info(f"Широта: {user_lat}, Долгота: {user_lon}")
 
+    events = fetch_events()
+    save_events_to_db(events)
     session = SessionLocal()
-    try: 
-        events = session.query(Event).all()
+
+    try:
         response = "🎉 Ближайшие мероприятия в радиусе 10 км:\n\n"
         count = 0
 

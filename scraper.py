@@ -36,6 +36,8 @@ def fetch_events():
 
         latitude, longitude = get_coordinates(location)
 
+        logging.info(f"Событие: {name}, Дата: {date}, Время: {time}, Место: {location}, Координаты: ({latitude}, {longitude})")
+
         events.append({
             'name': name,
             'date': date,
@@ -47,9 +49,9 @@ def fetch_events():
     return events
 
 # saving the event in db
-def save_event(name, date, time, location, lat, lng):
+def save_event(name, date, time, location, latitude, longitude):
     session = session()
-    db_event = Event(name=name, date=date, time=time, location=location, lat=lat, lng=lng)
+    db_event = Event(name=name, date=date, time=time, location=location, latitude=latitude, longitude=longitude)
     session.add(db_event)
     session.commit()
     session.close()
