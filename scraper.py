@@ -2,6 +2,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 from models import Event
+from database import session
 
 def get_coordinates(location):
     location += ", Челябинск"
