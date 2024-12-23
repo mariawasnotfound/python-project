@@ -1,18 +1,18 @@
-#!/bin/bash 
+#!/bin/bash
 
 export $(grep -v '^#' .env | xargs)
- 
-echo "Собираем и запускаем проект через Docker Compose..." 
-docker-compose down --volumes 
-docker-compose up --build -d 
 
-echo "Ожидаем запуска PostgreSQL..." 
-until docker exec afisha_db pg_isready -U mariawasnotfound > /dev/null 2>&1; do 
-  echo "PostgreSQL ещё не готов, подождите 5 секунд..." 
-  sleep 5 
-done 
+echo "Собираем и запускаем проект через Docker Compose..."
+docker-compose down --volumes
+docker-compose up --build -d
 
-echo "PostgreSQL готов. Выполняем скрапинг данных..." 
-docker exec -it nearby_events_bot python3 /app/scraper.py 
+echo "Запускаем PostgreSQL..."
+until docker exec afisha_db pg_isready -U mariawasnotfound > /dev/null 2>&1; do
+  echo "Еще пара секунд..."
+  sleep 8
+done
 
-echo "Проект запущен. Telegram-бот работает!"
+echo "PostgreSQL готов! Скрапим данные..."
+docker exec -it nearby_events_bot python3 /app/scraper.py
+
+echo "Ура! Проект запущен и все работает!"

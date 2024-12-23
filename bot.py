@@ -32,38 +32,38 @@ async def welcome(message: Message):
 
 @dp.message(lambda message: message.location is not None)
 async def handle_location(message: Message): 
-    """Обработка геолокации пользователя и поиск ближайших мероприятий"""
-    user_lat = message.location.latitude
-    user_lon = message.location.longitude
-    logging.info("Получена геолокация от пользователя.")
-    logging.info(f"Широта: {user_lat}, Долгота: {user_lon}")
-
-    events = fetch_events()
-    save_events_to_db(events)
-    session = SessionLocal()
-
-    try:
-        response = "🎉 Ближайшие мероприятия в радиусе 10 км:\n\n"
-        count = 0
-
-        for event in events:
-            if event.latitude and event.longitude:
-                event_coords = (event.latitude, event.longitude)
-                user_coords = (user_lat, user_lon)
-                distance = geodesic(user_coords, event_coords).kilometers
-                if distance <= 10:
-                    event_time = event.time if event.time else "Время уточняется"
-                    response += f"📍 {event.title} ({event.location}) - {event_time}\n"
-                    count += 1
-
-        if count == 0:
-            response += "😔 Мероприятий поблизости не найдено."
-        await message.answer(response)
-    except Exception as e:
-        logging.error(f"Ошибка при обработке геолокации: {e}")
-        await message.answer("Произошла ошибка при поиске мероприятий. Попробуйте ещё раз позже.")
-    finally:
-        session.close()
+    """Обработка геолокации пользователя""" 
+    if message.location:  # Проверяем, что сообщение содержит геолокацию 
+        try: 
+            user_lat = message.location.latitude 
+            user_lon = message.location.longitude 
+            logging.info(f"Получена геолокация: широта {user_lat}, долгота {user_lon}") 
+ 
+            # Логика работы с мероприятиями 
+            events = fetch_events() 
+            save_events_to_db(events) 
+ 
+            response = "🎉 Ближайшие мероприятия в радиусе 10 км:\n\n" 
+            count = 0 
+ 
+            for event in events: 
+                if event.latitude and event.longitude: 
+                    event_coords = (event.latitude, event.longitude) 
+                    user_coords = (user_lat, user_lon) 
+                    distance = geodesic(user_coords, event_coords).kilometers 
+                    if distance <= 10: 
+                        event_time = event.time if event.time else "Время уточняется" 
+                        response += f"📍 {event.title} ({event.location}) - {event_time}\n" 
+                        count += 1 
+ 
+            if count == 0: 
+                response += "😔 Мероприятий поблизости не найдено." 
+            await message.answer(response) 
+        except Exception as e: 
+            logging.exception("Ошибка при обработке геолокации") 
+            await message.answer("Произошла ошибка при поиске мероприятий. Попробуйте ещё раз позже.") 
+    else: 
+        logging.warning("Получено сообщение без геолокации")
 
 @dp.message(Command("events"))
 async def send_upcoming_events(message: Message): 

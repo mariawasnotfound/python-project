@@ -18,7 +18,7 @@ def get_coordinates(location):
 
 # парсинг событий с сайта
 def fetch_events():
-    url = 'https://example.com/events'
+    url = 'https://chel.guide/events'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
