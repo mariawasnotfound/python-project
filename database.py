@@ -30,5 +30,5 @@ def save_event(name, date, time, location, latitude, longitude):
     finally:
         db.close()
 
-def session():
+def get_session():
    return SessionLocal()

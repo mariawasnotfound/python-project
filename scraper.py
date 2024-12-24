@@ -2,7 +2,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 from models import Event
-from database import session
+from database import get_session
 
 def get_coordinates(location):
     location += ", Челябинск"
@@ -51,11 +51,11 @@ def fetch_events():
 
 # saving the event in db
 def save_event(name, date, time, location, latitude, longitude):
-    session = session()
+    db_session = get_session()
     db_event = Event(name=name, date=date, time=time, location=location, latitude=latitude, longitude=longitude)
-    session.add(db_event)
-    session.commit()
-    session.close()
+    db_session.add(db_event)
+    db_session.commit()
+    db_session.close()
 
 # saving a list of events
 def save_events_to_db(events):
